@@ -16,10 +16,10 @@ public class BulletController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        LetBulletFly(in direction);
+        LetBulletFly(direction);
     }
 
-    protected void LetBulletFly(in Vector3 direction)
+    protected void LetBulletFly(Vector3 direction)
     {
         this.gameObject.transform.Translate(direction * bulletSpeed * Time.deltaTime);
     }
@@ -43,5 +43,6 @@ public class BulletController : MonoBehaviour
     private void OnCollisionEnter2D(Collision2D collision)
     {
         Debug.Log("bullet Collider");
+        DisableBullet();
     }
 }
