@@ -3,85 +3,70 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public enum Direction
-{
-    up,
-    right,
-    down,
-    left
-}
-
+[RequireComponent(typeof(Rigidbody2D))]
 public class PlayerController : MonoBehaviour
 {
     public static PlayerController instance;
     public float moveSpeed = 2;
     public GameObject bullet;
-
-    protected Direction nowDirection;
+    public Transform bulletPos;
 
     private static int DIRECTION_ANGLE = 90;
-
-    // Start is called before the first frame update
+    private Rigidbody2D rb;
+    private Vector2 moveDirection;
+    private bool fireFlag;
     void Start()
     {
         if(bullet == null) { Debug.LogError("bullet gameobject is null!"); }
         instance = this;
-        nowDirection = Direction.up;
+        rb = GetComponent<Rigidbody2D>();
+        moveDirection = new Vector2(0, 0);
+        fireFlag = false;
     }
 
-    // Update is called once per frame
     void Update()
     {
-        MoveMent();
+        ProcessInputs();
     }
 
-    private void MoveMent()
+    void FixedUpdate()
     {
-        if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow))   //up
-        {
-            if (nowDirection != Direction.up) { TurnDirection(Direction.up); }
-            MoveForward();
-        }
+        Move();
+        Fire();
+    }
 
-        else if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftAlt))   //left
+    private void ProcessInputs()
+    {
+        if(moveDirection.y == 0)
         {
-            if (nowDirection != Direction.left) { TurnDirection(Direction.left); }
-            MoveForward();
+            moveDirection.x = Input.GetAxisRaw("Horizontal");
         }
-
-        else if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow)) //down
+        if(moveDirection.x == 0)
         {
-            if (nowDirection != Direction.down) { TurnDirection(Direction.down); }
-            MoveForward();
+            moveDirection.y = Input.GetAxisRaw("Vertical");
         }
-
-        else if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))    //right
+        if (Input.GetKeyDown(KeyCode.Space))
         {
-            if (nowDirection != Direction.right) { TurnDirection(Direction.right); }
-            MoveForward();
-        }
-
-        if(Input.GetKeyDown(KeyCode.Space))
-        {
-            Fire();
+            fireFlag = true;
         }
     }
 
-    protected void TurnDirection(Direction direction)
+    private void Move()
     {
-        int angle = (direction - this.nowDirection) * DIRECTION_ANGLE;  // Rotate angle
-        this.gameObject.transform.Rotate(Vector3.back * angle);
-        this.nowDirection = direction;
-    }
-
-    protected void MoveForward()
-    {
-        this.gameObject.transform.Translate(Vector3.up * Time.deltaTime * moveSpeed);
+        if(moveDirection.x != 0 || moveDirection.y != 0) // rotate
+        {
+            rb.MoveRotation(-(moveDirection.x + (moveDirection.y == 0? 0 : moveDirection.y - 1)) * DIRECTION_ANGLE);
+        }
+        rb.MovePosition(rb.position + moveDirection * moveSpeed * Time.fixedDeltaTime); // move
     }
 
     protected void Fire()
     {
-        Instantiate(bullet, this.gameObject.transform.position, this.gameObject.transform.rotation);
+        if (fireFlag)
+        {
+            Instantiate(bullet, bulletPos.position, this.gameObject.transform.rotation);
+            fireFlag = false;
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
