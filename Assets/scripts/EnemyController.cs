@@ -1,29 +1,32 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
-
-public class EnemyController : PlayerController
+public class EnemyController : BasePlayer
 {
+    public static EnemyController instance;
+    private void Awake()
+    {
+        instance = this;
+    }
+    void Start()
+    {
+        if (bullet == null) { Debug.LogError("bullet gameobject is null!"); }
+        rb = GetComponent<Rigidbody2D>();
+        moveDirection = new Vector2(0, 0);
+        fireFlag = false;
+    }
+    protected override void ProcessInputs()
+    {
+        //base.ProcessInputs();
+    }
+
+    public override void Move()
+    {
+        rb.MoveRotation(-(moveDirection.x + (moveDirection.y == 0 ? 0 : moveDirection.y - 1)) * NUM.DIRECTION_ANGLE); // rotate
+        rb.MovePosition(rb.position + moveDirection * moveSpeed * Time.fixedDeltaTime); // move
+    }
     private void AutoMove()
     {
         //TO DO
-    }
-
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        Debug.Log("enemy trigger");
-    }
-
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        Debug.Log("enemy Collider");
-
-        if (collision.gameObject.tag == "playerbullet")
-        {
-            Debug.LogWarning("restart");
-            Destroy(this.gameObject);
-            SceneManager.LoadScene("mainScene"); //for temporary
-        }
     }
 }
