@@ -1595,5 +1595,10 @@ PrefabInstance:
       propertyPath: desc
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 7138626236508304058, guid: 7da168ee5dfb0c1438414bbe43896d30,
+        type: 3}
+      propertyPath: moveDirection.x
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7da168ee5dfb0c1438414bbe43896d30, type: 3}

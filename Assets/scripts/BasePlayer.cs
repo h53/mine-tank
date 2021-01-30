@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class NUM
 {
@@ -14,12 +13,20 @@ public class BasePlayer : MonoBehaviour
     public float moveSpeed = 2;
     public GameObject bullet;
     public Transform bulletPos;
+    [HideInInspector]
     public Vector2 moveDirection;
     [HideInInspector]
     public string desc = ""; // net desc
-
+    [HideInInspector]
+    public string hitdesc = "";
+    [HideInInspector]
     public Rigidbody2D rb;
     protected bool fireFlag;
+
+    public bool getFireFlag()
+    {
+        return fireFlag;
+    }
 
     protected virtual void ProcessInputs()
     {
@@ -45,11 +52,11 @@ public class BasePlayer : MonoBehaviour
         }
     }
 
-    protected void Fire()
+    public virtual void Fire()
     {
         if (fireFlag)
         {
-            Instantiate(bullet, bulletPos.position, this.gameObject.transform.rotation);
+            Instantiate(bullet, bulletPos.position, this.gameObject.transform.rotation).GetComponent<BulletController>().desc = this.desc;
             fireFlag = false;
         }
     }
@@ -62,12 +69,9 @@ public class BasePlayer : MonoBehaviour
     private void OnCollisionEnter2D(Collision2D collision)
     {
         Debug.Log("player collider");
-        if (collision.gameObject.tag == "enemybullet")
-        {
-            Debug.LogWarning("restart");
-            Destroy(this.gameObject);
-            SceneManager.LoadScene("mainScene"); //for temporary
-        }
+
+        //only detact self being hit
+        this.hitdesc = collision.gameObject.GetComponent<BulletController>().desc;
     }
 
 }

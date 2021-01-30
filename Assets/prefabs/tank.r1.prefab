@@ -130,7 +130,7 @@ Rigidbody2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4823287930532334777}
-  m_BodyType: 0
+  m_BodyType: 1
   m_Simulated: 1
   m_UseFullKinematicContacts: 1
   m_UseAutoMass: 0
@@ -160,6 +160,8 @@ MonoBehaviour:
   bulletPos: {fileID: 4823287930724722845}
   moveDirection: {x: 0, y: 0}
   desc: 
+  hitdesc: 
+  rb: {fileID: 0}
 --- !u!1 &4823287930724722834
 GameObject:
   m_ObjectHideFlags: 0

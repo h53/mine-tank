@@ -6,6 +6,8 @@ public class BulletController : MonoBehaviour
 {
     public float bulletSpeed = 5;
     private Vector3 direction;
+    [HideInInspector]
+    public string desc = "";
 
     // Start is called before the first frame update
     void Start()
