@@ -21,6 +21,8 @@ public class NetController : MonoBehaviour
         NetManager.AddListener("Move", OnMove);
         NetManager.AddListener("Leave", OnLeave);
         NetManager.AddListener("List", OnList);
+        NetManager.AddListener("Fire", OnFire);
+        NetManager.AddListener("Hit", OnHit);
         NetManager.Connect("127.0.0.1", 1234);
 
         player.desc = NetManager.GetDesc();
@@ -49,17 +51,36 @@ public class NetController : MonoBehaviour
         NetManager.Update();
 
         if (player.moveDirection.x != 0 || player.moveDirection.y != 0)
+        {
             NetManager.Send("Move|" + player.desc + ","
                 + player.transform.position.x + ","
                 + player.transform.position.y + ","
                 + player.moveDirection.x + ","
                 + player.moveDirection.y + ","
                 );
+        }
+
+        if (player.getFireFlag())
+        {
+            NetManager.Send("Fire|" + player.desc + ","
+                + player.transform.position.x + ","
+                + player.transform.position.y + ","
+                + player.moveDirection.x + ","
+                + player.moveDirection.y + ","
+                );
+        }
+
+        if (!player.hitdesc.Equals(""))
+        {
+            NetManager.Send("Hit|" + player.desc + ","
+                + player.hitdesc + ","
+                );
+        }
     }
 
     void OnList(string msgArgs)
     {
-        Debug.Log("OnList" + msgArgs);
+        Debug.Log("OnList " + msgArgs);
         string[] split = msgArgs.Split(',');
         int count = (split.Length - 1) / 5;
         for(int i = 0; i < count; i++)
@@ -77,7 +98,7 @@ public class NetController : MonoBehaviour
     }
     void OnEnter(string msg)
     {
-        Debug.Log("OnEnter" + msg);
+        Debug.Log("OnEnter " + msg);
         string[] split = msg.Split(',');
         string desc = split[0];
         float posx = float.Parse(split[1]);
@@ -103,7 +124,7 @@ public class NetController : MonoBehaviour
 
     void OnMove(string msg)
     {
-        Debug.Log("OnMove" + msg);
+        Debug.Log("OnMove " + msg);
         string[] split = msg.Split(',');
         string desc = split[0];
         float posx = float.Parse(split[1]);
@@ -119,6 +140,43 @@ public class NetController : MonoBehaviour
 
     void OnLeave(string msg)
     {
-        Debug.Log("OnLeave" + msg);
+        Debug.Log("OnLeave " + msg);
+        string[] split = msg.Split(',');
+        string desc = split[0];
+        if (!enemys.ContainsKey(desc)) return;
+        Destroy(enemys[desc].gameObject);
+        enemys.Remove(desc);
+    }
+
+    void OnFire(string msg)
+    {
+        Debug.Log("OnFire " + msg);
+        string[] split = msg.Split(',');
+        string desc = split[0];
+        float posx = float.Parse(split[1]);
+        float posy = float.Parse(split[2]);
+        short dirx = short.Parse(split[3]);
+        short diry = short.Parse(split[4]);
+
+        if (!enemys.ContainsKey(desc)) return;
+        //enemys[desc].transform.position = new Vector3(posx, posx, 0);
+        enemys[desc].moveDirection = new Vector2(dirx, diry);
+        enemys[desc].Fire();
+    }
+    void OnHit(string msg)
+    {
+        Debug.Log("OnHit " + msg);
+        string[] split = msg.Split(',');
+        string desc = split[0];
+        string hitdesc = split[1];
+        if (desc == player.desc)
+        {
+            Debug.LogWarning("you fail");
+            Destroy(player.gameObject);
+            Destroy(this.gameObject);
+        }
+        if (!enemys.ContainsKey(desc)) return;
+        Destroy(enemys[desc].gameObject);
+        enemys.Remove(desc);
     }
 }

@@ -48,7 +48,7 @@ public static class NetManager
             socket.BeginReceive(readBuff, 0, BUFF_SIZE, SocketFlags.None, ReceiveCallback, socket);
         }catch(SocketException ex)
         {
-            Debug.LogError("socket receive fail" + ex.ToString());
+            Debug.LogError("socket receive fail " + ex.ToString());
         }
     }
 

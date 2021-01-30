@@ -29,4 +29,9 @@ public class EnemyController : BasePlayer
     {
         //TO DO
     }
+
+    public override void Fire()
+    {
+        Instantiate(bullet, bulletPos.position, this.gameObject.transform.rotation).GetComponent<BulletController>().desc = this.desc;
+    }
 }
