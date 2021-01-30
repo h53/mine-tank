@@ -174,6 +174,7 @@ public class NetController : MonoBehaviour
             Debug.LogWarning("you fail");
             Destroy(player.gameObject);
             Destroy(this.gameObject);
+            GameController.instance.isOver = true;
         }
         if (!enemys.ContainsKey(desc)) return;
         Destroy(enemys[desc].gameObject);
