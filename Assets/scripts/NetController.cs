@@ -23,7 +23,7 @@ public class NetController : MonoBehaviour
         NetManager.AddListener("List", OnList);
         NetManager.AddListener("Fire", OnFire);
         NetManager.AddListener("Hit", OnHit);
-        NetManager.Connect("127.0.0.1", 1234);
+        NetManager.Connect(GlobalVars.serverip, GlobalVars.port);
 
         player.desc = NetManager.GetDesc();
         player.transform.position = new Vector3(Random.Range(-5, 5), Random.Range(-5, 5), 0);
