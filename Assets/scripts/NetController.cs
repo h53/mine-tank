@@ -36,8 +36,8 @@ public class NetController : MonoBehaviour
 
         NetManager.Send(sendStr);
 
-        StartCoroutine("Waitfor");
-        //NetManager.Send("List|");
+        //StartCoroutine("Waitfor");
+        NetManager.Send("List|");
     }
 
     IEnumerator Waitfor()
@@ -73,7 +73,7 @@ public class NetController : MonoBehaviour
         if (!player.hitdesc.Equals(""))
         {
             NetManager.Send("Hit|" + player.desc + ","
-                + player.hitdesc + ","
+                + player.hitdesc
                 );
         }
     }
