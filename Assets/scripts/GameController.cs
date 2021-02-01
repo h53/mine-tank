@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class GameController : MonoBehaviour
 {
@@ -9,7 +10,7 @@ public class GameController : MonoBehaviour
     [HideInInspector]
     public bool isOver;
     public GameObject GameOver;
-    // Start is called before the first frame update
+    public Text onLineText;
 
     private void Awake()
     {
@@ -27,6 +28,8 @@ public class GameController : MonoBehaviour
             GameOver.SetActive(true);
             isOver = false;
         }
+
+        onLineText.text = GlobalVars.onLineNum.ToString();
     }
 
     public void StartButton()

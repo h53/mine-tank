@@ -83,7 +83,7 @@ public class NetController : MonoBehaviour
         Debug.Log("OnList " + msgArgs);
         string[] split = msgArgs.Split(',');
         int count = (split.Length - 1) / 5;
-        for(int i = 0; i < count; i++)
+        for (int i = 0; i < count; i++)
         {
             string desc = split[i * 5 + 0];
             float posX = float.Parse(split[i * 5 + 1]);
@@ -119,6 +119,7 @@ public class NetController : MonoBehaviour
         EnemyController enemyController = enemy.GetComponent<EnemyController>();
         enemyController.desc = desc;
         enemys.Add(desc, enemyController);
+        GlobalVars.onLineNum++;
     }
 
     void OnMove(string msg)
@@ -146,6 +147,7 @@ public class NetController : MonoBehaviour
         if (!enemys.ContainsKey(desc)) return;
         Destroy(enemys[desc].gameObject);
         enemys.Remove(desc);
+        GlobalVars.onLineNum--;
     }
 
     void OnFire(string msg)

@@ -8,6 +8,7 @@ public static class GlobalVars
 {
     public static string serverip;
     public static int port;
+    public static int onLineNum = 1;
 }
 public class LoadScene : MonoBehaviour
 {

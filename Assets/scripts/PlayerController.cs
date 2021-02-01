@@ -3,12 +3,16 @@
 public class PlayerController : BasePlayer
 {
     public static PlayerController instance;
+    public Camera hudCamera;
+    private Vector3 hudCameraPos;
     void Awake()
     {
         instance = this;
         if (bullet == null) { Debug.LogError("bullet gameobject is null!"); }
+        if (hudCamera == null) { Debug.LogError("hudCamera is null!"); }
         moveDirection = new Vector2(0, 0);
         rb = GetComponent<Rigidbody2D>();
+        hudCameraPos = hudCamera.transform.position;
     }
 
     private void Start()
@@ -19,12 +23,20 @@ public class PlayerController : BasePlayer
     void Update()
     {
         ProcessInputs();
+        HudCameraFollow();
     }
 
     void FixedUpdate()
     {
         Move();
         Fire();
+    }
+
+    private void HudCameraFollow()
+    {
+        hudCameraPos.x = this.gameObject.transform.position.x;
+        hudCameraPos.y = this.gameObject.transform.position.y;
+        hudCamera.transform.position = hudCameraPos;
     }
     protected override void ProcessInputs()
     {
@@ -39,6 +51,18 @@ public class PlayerController : BasePlayer
         if (Input.GetKeyDown(KeyCode.Space))
         {
             fireFlag = true;
+        }
+
+        if (Input.GetAxis("Mouse ScrollWheel") < 0)
+        {
+            if (hudCamera.fieldOfView <= 120)
+                hudCamera.fieldOfView += 2;
+        }
+
+        if (Input.GetAxis("Mouse ScrollWheel") > 0)
+        {
+            if (hudCamera.fieldOfView > 4)
+                hudCamera.fieldOfView -= 2;
         }
     }
     protected override void Move()

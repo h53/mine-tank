@@ -6,6 +6,20 @@ using UnityEngine.UI;
 using System;
 using System.Linq;
 
+public class ByteArray
+{
+    public byte[] bytes;
+    public int readIdx = 0;
+    public int writeIdx = 0;
+    public int length { get { return writeIdx - readIdx; } }
+
+    public ByteArray(byte[] defaultBytes)
+    {
+        bytes = defaultBytes;
+        readIdx = 0;
+        writeIdx = defaultBytes.Length;
+    }
+}
 public static class NetManager
 {
     private const int BUFF_SIZE = 1024;
@@ -20,7 +34,9 @@ public static class NetManager
 
     private static Dictionary<string, MsgListener> listeners = new Dictionary<string, MsgListener>();
 
-    private static List<string> msgList = new List<string>();
+    private static List<string> msgList = new List<string>();   // receive 
+
+    private static Queue<ByteArray> writeQueue = new Queue<ByteArray>();    // send queue
 
     public static void AddListener(string msgName, MsgListener listener)
     {
@@ -79,7 +95,43 @@ public static class NetManager
         Int16 len = (Int16)bodyByte.Length;
         byte[] headByte = BitConverter.GetBytes(len);
         byte[] sendByte = headByte.Concat(bodyByte).ToArray();
-        socket.Send(sendByte);
+        ByteArray ba = new ByteArray(sendByte);
+        int count = 0;
+        lock (writeQueue)
+        {
+            writeQueue.Enqueue(ba);
+            count = writeQueue.Count;
+        }
+        if (count == 1)
+        {
+            socket.BeginSend(sendByte, 0, sendByte.Length, SocketFlags.None, SendCallback, socket);
+        }
+        //socket.Send(sendByte);
+    }
+
+    private static void SendCallback(IAsyncResult ar)
+    {
+        Socket socket = (Socket)ar.AsyncState;
+        int count = socket.EndReceive(ar);
+
+        ByteArray ba;
+        lock (writeQueue)
+        {
+            ba = writeQueue.First();
+        }
+        ba.readIdx += count;
+        if(count == ba.length)
+        {
+            lock (writeQueue)
+            {
+                writeQueue.Dequeue();
+                ba = writeQueue.First();
+            }
+        }
+        if(ba != null)
+        {
+            socket.BeginSend(ba.bytes, ba.readIdx, ba.length, SocketFlags.None, SendCallback, socket);
+        }
     }
 
     public static void Update()
