@@ -23,7 +23,7 @@ public class NetController : MonoBehaviour
         NetManager.AddListener("List", OnList);
         NetManager.AddListener("Fire", OnFire);
         NetManager.AddListener("Hit", OnHit);
-        NetManager.Connect("127.0.0.1", 1234);
+        NetManager.Connect(GlobalVars.serverip, GlobalVars.port);
 
         player.desc = NetManager.GetDesc();
         player.transform.position = new Vector3(Random.Range(-5, 5), Random.Range(-5, 5), 0);
@@ -50,6 +50,7 @@ public class NetController : MonoBehaviour
     {
         NetManager.Update();
 
+
         if (player.moveDirection.x != 0 || player.moveDirection.y != 0)
         {
             NetManager.Send("Move|" + player.desc + ","
@@ -60,7 +61,7 @@ public class NetController : MonoBehaviour
                 );
         }
 
-        if (player.getFireFlag())
+        if (player.fireFlag)
         {
             NetManager.Send("Fire|" + player.desc + ","
                 + player.transform.position.x + ","
@@ -114,10 +115,9 @@ public class NetController : MonoBehaviour
 
     void AddEnemy(float posX, float posY,short dirX,short dirY, string desc)
     {
-        GameObject enemy = Instantiate(enemyPrefab);
-        enemy.transform.position = new Vector3(posX, posY, 0);
+        Vector3 angle = new Vector3(0, 0, -(dirX + (dirY == 0 ? 0 : dirY - 1)) * NUM.DIRECTION_ANGLE);
+        GameObject enemy = Instantiate(enemyPrefab, new Vector3(posX, posY, 0), Quaternion.Euler(angle));
         EnemyController enemyController = enemy.GetComponent<EnemyController>();
-        enemyController.moveDirection = new Vector2(dirX, dirY);
         enemyController.desc = desc;
         enemys.Add(desc, enemyController);
     }
@@ -135,7 +135,8 @@ public class NetController : MonoBehaviour
         if (!enemys.ContainsKey(desc)) return;
         //enemys[desc].transform.position = new Vector3(posx, posx, 0);
         enemys[desc].moveDirection = new Vector2(dirx, diry);
-        enemys[desc].Move();
+        enemys[desc].position = new Vector2(posx, posy);
+        //enemys[desc].Move();
     }
 
     void OnLeave(string msg)
@@ -153,15 +154,16 @@ public class NetController : MonoBehaviour
         Debug.Log("OnFire " + msg);
         string[] split = msg.Split(',');
         string desc = split[0];
-        float posx = float.Parse(split[1]);
-        float posy = float.Parse(split[2]);
+        //float posx = float.Parse(split[1]);
+        //float posy = float.Parse(split[2]);
         short dirx = short.Parse(split[3]);
         short diry = short.Parse(split[4]);
 
         if (!enemys.ContainsKey(desc)) return;
         //enemys[desc].transform.position = new Vector3(posx, posx, 0);
         enemys[desc].moveDirection = new Vector2(dirx, diry);
-        enemys[desc].Fire();
+        enemys[desc].fireFlag = true;
+        //enemys[desc].Fire();
     }
     void OnHit(string msg)
     {
@@ -174,6 +176,7 @@ public class NetController : MonoBehaviour
             Debug.LogWarning("you fail");
             Destroy(player.gameObject);
             Destroy(this.gameObject);
+            GameController.instance.isOver = true;
         }
         if (!enemys.ContainsKey(desc)) return;
         Destroy(enemys[desc].gameObject);

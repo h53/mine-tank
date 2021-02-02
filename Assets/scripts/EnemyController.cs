@@ -3,35 +3,50 @@ using System.Collections.Generic;
 using UnityEngine;
 public class EnemyController : BasePlayer
 {
-    public static EnemyController instance;
-    private void Awake()
-    {
-        instance = this;
-    }
-    void Start()
+    public Vector2 position;
+    void Awake()
     {
         if (bullet == null) { Debug.LogError("bullet gameobject is null!"); }
         rb = GetComponent<Rigidbody2D>();
         moveDirection = new Vector2(0, 0);
+    }
+    private void Start()
+    {
         fireFlag = false;
+        position = rb.position;
+    }
+    void Update()
+    {
+        //ProcessInputs();
+        Move();
+        Fire();
+    }
+
+    void FixedUpdate()
+    {
+        //Move();
+        //Fire();
     }
     protected override void ProcessInputs()
     {
         //base.ProcessInputs();
     }
 
-    public override void Move()
+    protected override void Move()
     {
-        rb.MoveRotation(-(moveDirection.x + (moveDirection.y == 0 ? 0 : moveDirection.y - 1)) * NUM.DIRECTION_ANGLE); // rotate
-        rb.MovePosition(rb.position + moveDirection * moveSpeed * Time.fixedDeltaTime); // move
-    }
-    private void AutoMove()
-    {
-        //TO DO
+        if (rb.position != position)
+        {
+            rb.MoveRotation(-(moveDirection.x + (moveDirection.y == 0 ? 0 : moveDirection.y - 1)) * NUM.DIRECTION_ANGLE); // rotate
+            rb.MovePosition(Vector2.Lerp(rb.position,position,0.675f)); // move
+        }
     }
 
-    public override void Fire()
+    protected override void Fire()
     {
-        Instantiate(bullet, bulletPos.position, this.gameObject.transform.rotation).GetComponent<BulletController>().desc = this.desc;
+        if (fireFlag)
+        {
+            Instantiate(bullet, bulletPos.position, this.gameObject.transform.rotation).GetComponent<BulletController>().desc = this.desc;
+            fireFlag = false;
+        }
     }
 }
