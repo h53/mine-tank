@@ -27,7 +27,7 @@ public class EnemyController : BasePlayer
         //Move();
         //Fire();
     }
-    protected override void ProcessInputs()
+    protected override void ProcessInputs(bool disable)
     {
         //base.ProcessInputs();
     }

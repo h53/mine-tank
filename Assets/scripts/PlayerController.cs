@@ -22,7 +22,7 @@ public class PlayerController : BasePlayer
 
     void Update()
     {
-        ProcessInputs();
+        ProcessInputs(GameController.isTyping);
         HudCameraFollow();
     }
 
@@ -38,8 +38,9 @@ public class PlayerController : BasePlayer
         hudCameraPos.y = this.gameObject.transform.position.y;
         hudCamera.transform.position = hudCameraPos;
     }
-    protected override void ProcessInputs()
+    protected override void ProcessInputs(bool disable)
     {
+        if (disable) return;
         if (moveDirection.y == 0)
         {
             moveDirection.x = Input.GetAxisRaw("Horizontal");
@@ -55,14 +56,14 @@ public class PlayerController : BasePlayer
 
         if (Input.GetAxis("Mouse ScrollWheel") < 0)
         {
-            if (hudCamera.fieldOfView <= 120)
-                hudCamera.fieldOfView += 2;
+            if (hudCamera.orthographicSize <= 20)
+                hudCamera.orthographicSize += 0.5F;
         }
 
         if (Input.GetAxis("Mouse ScrollWheel") > 0)
         {
-            if (hudCamera.fieldOfView > 4)
-                hudCamera.fieldOfView -= 2;
+            if (hudCamera.orthographicSize > 0.3)
+                hudCamera.orthographicSize -= 0.5F;
         }
     }
     protected override void Move()
