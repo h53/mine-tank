@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 7138626236508304060}
   - component: {fileID: 7138626236508304059}
   - component: {fileID: 7138626236508304058}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: tank.b1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -162,6 +162,8 @@ MonoBehaviour:
   desc: 
   hitdesc: 
   rb: {fileID: 0}
+  fireFlag: 0
+  hudCamera: {fileID: 0}
 --- !u!1 &7138626236632025311
 GameObject:
   m_ObjectHideFlags: 0
@@ -171,7 +173,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7138626236632025296}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: bulletPos
   m_TagString: Untagged
   m_Icon: {fileID: 0}

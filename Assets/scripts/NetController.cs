@@ -1,13 +1,20 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
 public class NetController : MonoBehaviour
 {
     public GameObject enemyPrefab;
+    public Text msgTextPrefab;
+    public GameObject msgRoot;
+    public ScrollRect msgHistory;
     public Dictionary<string, EnemyController> enemys = new Dictionary<string, EnemyController>();
+    private Queue<Text> msgQueue = new Queue<Text>();
+    public const int MAXMSGCOUNT = 665;
 
     private PlayerController player;
     private string sendStr;
@@ -23,6 +30,8 @@ public class NetController : MonoBehaviour
         NetManager.AddListener("List", OnList);
         NetManager.AddListener("Fire", OnFire);
         NetManager.AddListener("Hit", OnHit);
+        NetManager.AddListener("Tip", OnTip);
+        NetManager.AddListener("Text", OnText);
         NetManager.Connect(GlobalVars.serverip, GlobalVars.port);
 
         player.desc = NetManager.GetDesc();
@@ -36,20 +45,12 @@ public class NetController : MonoBehaviour
 
         NetManager.Send(sendStr);
 
-        StartCoroutine("Waitfor");
-        //NetManager.Send("List|");
-    }
-
-    IEnumerator Waitfor()
-    {
-        yield return new WaitForSeconds(1f);
         NetManager.Send("List|");
     }
 
     private void Update()
     {
         NetManager.Update();
-
 
         if (player.moveDirection.x != 0 || player.moveDirection.y != 0)
         {
@@ -74,17 +75,17 @@ public class NetController : MonoBehaviour
         if (!player.hitdesc.Equals(""))
         {
             NetManager.Send("Hit|" + player.desc + ","
-                + player.hitdesc + ","
+                + player.hitdesc
                 );
         }
     }
-
+    
     void OnList(string msgArgs)
     {
         Debug.Log("OnList " + msgArgs);
         string[] split = msgArgs.Split(',');
         int count = (split.Length - 1) / 5;
-        for(int i = 0; i < count; i++)
+        for (int i = 0; i < count; i++)
         {
             string desc = split[i * 5 + 0];
             float posX = float.Parse(split[i * 5 + 1]);
@@ -120,6 +121,7 @@ public class NetController : MonoBehaviour
         EnemyController enemyController = enemy.GetComponent<EnemyController>();
         enemyController.desc = desc;
         enemys.Add(desc, enemyController);
+        GlobalVars.onLineNum++;
     }
 
     void OnMove(string msg)
@@ -147,6 +149,7 @@ public class NetController : MonoBehaviour
         if (!enemys.ContainsKey(desc)) return;
         Destroy(enemys[desc].gameObject);
         enemys.Remove(desc);
+        GlobalVars.onLineNum--;
     }
 
     void OnFire(string msg)
@@ -170,7 +173,7 @@ public class NetController : MonoBehaviour
         Debug.Log("OnHit " + msg);
         string[] split = msg.Split(',');
         string desc = split[0];
-        string hitdesc = split[1];
+        //string hitdesc = split[1];
         if (desc == player.desc)
         {
             Debug.LogWarning("you fail");
@@ -181,5 +184,38 @@ public class NetController : MonoBehaviour
         if (!enemys.ContainsKey(desc)) return;
         Destroy(enemys[desc].gameObject);
         enemys.Remove(desc);
+        GlobalVars.onLineNum--;
+    }
+
+    void OnTip(string msg)
+    {
+        Debug.Log("OnTip " + msg);
+        string[] split = msg.Split(',');
+        string tip = split[0];
+        GameController.instance.ShowTip(tip, 2f);
+    }
+
+    void OnText(string msg)
+    {
+        Debug.Log("OnText " + msg);
+        string[] split = msg.Split(',');
+        string desc = split[0];
+        string info = split[1];
+        Text newMsg = Instantiate(msgTextPrefab, msgRoot.transform);
+        newMsg.text = info;
+        msgQueue.Enqueue(newMsg);
+        // show last msg
+        StartCoroutine(UpdateScroll(0f));
+        if (msgQueue.Count >= MAXMSGCOUNT)
+        {
+            Destroy(msgQueue.First().gameObject);
+            msgQueue.Dequeue();
+        }
+    }
+
+    IEnumerator UpdateScroll(float pos)
+    {
+        yield return new WaitForEndOfFrame();
+        msgHistory.verticalNormalizedPosition = pos;
     }
 }
