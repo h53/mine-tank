@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class NUM
 {
@@ -23,7 +24,7 @@ public class BasePlayer : MonoBehaviour
     public Rigidbody2D rb;
     public bool fireFlag;
 
-    protected virtual void ProcessInputs()
+    protected virtual void ProcessInputs(bool disable)
     {
         
     }
