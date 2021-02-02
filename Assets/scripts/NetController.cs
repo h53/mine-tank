@@ -50,7 +50,8 @@ public class NetController : MonoBehaviour
     {
         NetManager.Update();
 
-                if (player.moveDirection.x != 0 || player.moveDirection.y != 0)
+
+        if (player.moveDirection.x != 0 || player.moveDirection.y != 0)
         {
             NetManager.Send("Move|" + player.desc + ","
                 + player.transform.position.x + ","
