@@ -47,6 +47,7 @@ public class GameController : MonoBehaviour
         while (input.isFocused)
         {
             yield return new WaitForSeconds(sec);
+            Debug.LogWarning("WaitForSeconds(sec)");
         }
         inputStr = input.text;
         input.gameObject.SetActive(false);

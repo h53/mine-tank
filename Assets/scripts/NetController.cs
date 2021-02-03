@@ -9,20 +9,19 @@ using Random = UnityEngine.Random;
 public class NetController : MonoBehaviour
 {
     public GameObject enemyPrefab;
-    public Text msgTextPrefab;
-    public GameObject msgRoot;
-    public ScrollRect msgHistory;
     public Dictionary<string, EnemyController> enemys = new Dictionary<string, EnemyController>();
-    private Queue<Text> msgQueue = new Queue<Text>();
-    public const int MAXMSGCOUNT = 665;
 
     private PlayerController player;
+    private MsgController msgController;
+    private GameController gameController;
     private string sendStr;
 
     // Start is called before the first frame update
     void Start()
     {
         player = PlayerController.instance;
+        msgController = MsgController.instance;
+        gameController = GameController.instance;
 
         NetManager.AddListener("Enter", OnEnter);
         NetManager.AddListener("Move", OnMove);
@@ -179,7 +178,7 @@ public class NetController : MonoBehaviour
             Debug.LogWarning("you fail");
             Destroy(player.gameObject);
             Destroy(this.gameObject);
-            GameController.instance.isOver = true;
+            gameController.isOver = true;
         }
         if (!enemys.ContainsKey(desc)) return;
         Destroy(enemys[desc].gameObject);
@@ -192,7 +191,7 @@ public class NetController : MonoBehaviour
         Debug.Log("OnTip " + msg);
         string[] split = msg.Split(',');
         string tip = split[0];
-        GameController.instance.ShowTip(tip, 2f);
+        gameController.ShowTip(tip, 2f);
     }
 
     void OnText(string msg)
@@ -201,21 +200,6 @@ public class NetController : MonoBehaviour
         string[] split = msg.Split(',');
         string desc = split[0];
         string info = split[1];
-        Text newMsg = Instantiate(msgTextPrefab, msgRoot.transform);
-        newMsg.text = info;
-        msgQueue.Enqueue(newMsg);
-        // show last msg
-        StartCoroutine(UpdateScroll(0f));
-        if (msgQueue.Count >= MAXMSGCOUNT)
-        {
-            Destroy(msgQueue.First().gameObject);
-            msgQueue.Dequeue();
-        }
-    }
-
-    IEnumerator UpdateScroll(float pos)
-    {
-        yield return new WaitForEndOfFrame();
-        msgHistory.verticalNormalizedPosition = pos;
+        msgController.UpdateMsg(info);
     }
 }
