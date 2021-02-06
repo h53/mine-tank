@@ -1,9 +1,11 @@
-﻿using UnityEngine;
+﻿using Cinemachine;
+using UnityEngine;
 
 public class PlayerController : BasePlayer
 {
     public static PlayerController instance;
     public Camera hudCamera;
+    public CinemachineVirtualCamera selfCamera;
     private Vector3 hudCameraPos;
     void Awake()
     {
@@ -23,7 +25,7 @@ public class PlayerController : BasePlayer
     void Update()
     {
         ProcessInputs(GameController.isTyping);
-        HudCameraFollow();
+        HudCameraFollow(GameController.isMapOn);
     }
 
     void FixedUpdate()
@@ -32,15 +34,51 @@ public class PlayerController : BasePlayer
         Fire();
     }
 
-    private void HudCameraFollow()
+    private void HudCameraFollow(bool disable)
     {
-        hudCameraPos.x = this.gameObject.transform.position.x;
-        hudCameraPos.y = this.gameObject.transform.position.y;
-        hudCamera.transform.position = hudCameraPos;
+        if (!disable)
+        {
+            if (Input.GetAxis("Mouse ScrollWheel") < 0)
+            {
+                if (selfCamera.m_Lens.OrthographicSize <= 15)
+                {
+                    Debug.LogWarning("+");
+                    selfCamera.m_Lens.OrthographicSize += 0.5F;
+                }
+            }
+
+            if (Input.GetAxis("Mouse ScrollWheel") > 0)
+            {
+                if (selfCamera.m_Lens.OrthographicSize > 0.8)
+                {
+                    Debug.LogWarning("-");
+                    selfCamera.m_Lens.OrthographicSize -= 0.5F;
+                }
+            }
+        }   
+        else
+        {
+            hudCameraPos.x = this.gameObject.transform.position.x;
+            hudCameraPos.y = this.gameObject.transform.position.y;
+            hudCamera.transform.position = hudCameraPos;
+
+            if (Input.GetAxis("Mouse ScrollWheel") < 0)
+            {
+                if (hudCamera.orthographicSize <= 20)
+                    hudCamera.orthographicSize += 0.5F;
+            }
+
+            if (Input.GetAxis("Mouse ScrollWheel") > 0)
+            {
+                if (hudCamera.orthographicSize > 0.3)
+                    hudCamera.orthographicSize -= 0.5F;
+            }
+        }
     }
     protected override void ProcessInputs(bool disable)
     {
         if (disable) return;
+
         if (moveDirection.y == 0)
         {
             moveDirection.x = Input.GetAxisRaw("Horizontal");
@@ -52,18 +90,6 @@ public class PlayerController : BasePlayer
         if (Input.GetKeyDown(KeyCode.Space))
         {
             fireFlag = true;
-        }
-
-        if (Input.GetAxis("Mouse ScrollWheel") < 0)
-        {
-            if (hudCamera.orthographicSize <= 20)
-                hudCamera.orthographicSize += 0.5F;
-        }
-
-        if (Input.GetAxis("Mouse ScrollWheel") > 0)
-        {
-            if (hudCamera.orthographicSize > 0.3)
-                hudCamera.orthographicSize -= 0.5F;
         }
     }
     protected override void Move()

@@ -8,7 +8,6 @@ public class MsgController : MonoBehaviour
     public static MsgController instance;
     public Text msgTextPrefab;
     public GameObject msgRoot;
-    private MsgBox msgBox;
     public ScrollRect msgHistory;
 
     private Queue<Text> msgQueue = new Queue<Text>();
@@ -17,7 +16,6 @@ public class MsgController : MonoBehaviour
     private void Start()
     {
         instance = this;
-        msgBox = MsgBox.instance;
     }
 
     public void UpdateMsg(string msg)
