@@ -6,8 +6,8 @@ using UnityEngine.UI;
 
 public static class GlobalVars
 {
-    public static string serverip;
-    public static int port;
+    public static string serverip = "127.0.0.1";
+    public static int port = 1234;
     public static int onLineNum = 1;
 }
 public class LoadScene : MonoBehaviour

@@ -14,8 +14,11 @@ public class GameController : MonoBehaviour
     public Text onLineText;
     public Text tipText;
     public InputField input;
-    public string inputStr;
+    private string inputStr;
+    public GameObject map;
+    public GameObject hudCamera;
     public static bool isTyping;
+    public static bool isMapOn;
     private static IEnumerator coroutine;
 
     private void Awake()
@@ -26,6 +29,7 @@ public class GameController : MonoBehaviour
     {
         isOver = false;
         isTyping = false;
+        isMapOn = false;
     }
 
     // Update is called once per frame
@@ -36,7 +40,7 @@ public class GameController : MonoBehaviour
         }
 
         SendText();
-
+        ShowMap();
         ShowOnlineNum();
     }
 
@@ -47,9 +51,32 @@ public class GameController : MonoBehaviour
         while (input.isFocused)
         {
             yield return new WaitForSeconds(sec);
+            Debug.LogWarning("WaitForSeconds(sec)");
         }
         inputStr = input.text;
         input.gameObject.SetActive(false);
+    }
+
+    /// <summary>
+    /// click m to enable map
+    /// </summary>
+    private void ShowMap()
+    {
+        if (Input.GetKeyDown(KeyCode.M))
+        {
+            if (map.gameObject.activeSelf)
+            {
+                map.SetActive(false);
+                hudCamera.SetActive(false);
+                isMapOn = false;
+            }
+            else
+            {
+                map.SetActive(true);
+                hudCamera.SetActive(true);
+                isMapOn = true;
+            }
+        }
     }
 
     /// <summary>
