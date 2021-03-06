@@ -161,7 +161,7 @@ public static class NetManager
     private static void OnReceiveData()
     {
         if(readBuff.length <= 2) { return; }
-        Int16 bodyLength = BitConverter.ToInt16(readBuff.bytes, 0);
+        Int16 bodyLength = BitConverter.ToInt16(readBuff.bytes, readBuff.readIdx);
         if (readBuff.length < 2 + bodyLength) { return; }
         readBuff.readIdx += 2;
 

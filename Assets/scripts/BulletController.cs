@@ -13,8 +13,14 @@ public class BulletController : MonoBehaviour
     void Start()
     {
         direction = Vector3.up;
+        StartCoroutine(WaitToDestroy(3f));
     }
 
+    IEnumerator WaitToDestroy(float sec)
+    {
+        yield return new WaitForSeconds(sec);
+        DisableBullet();
+    }
     // Update is called once per frame
     void Update()
     {
@@ -29,12 +35,6 @@ public class BulletController : MonoBehaviour
     private void DisableBullet()
     {
         Destroy(this.gameObject);
-    }
-
-    void OnBecameInvisible()
-    {
-        // run out of the screen
-        DisableBullet();
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
