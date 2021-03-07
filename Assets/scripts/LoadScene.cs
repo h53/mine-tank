@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -14,6 +15,19 @@ public class LoadScene : MonoBehaviour
 {
     public InputField serverIp;
     public InputField port;
+
+    private void Start()
+    {
+        string[] commandLineArgs = Environment.GetCommandLineArgs();
+        if(commandLineArgs.Length > 2)
+        {
+            GlobalVars.serverip = commandLineArgs[1];
+            GlobalVars.port = int.Parse(commandLineArgs[2]);
+            Debug.LogWarning("bench mode on");
+            SceneManager.LoadScene("mainScene");
+        }
+        
+    }
     public void BeginBtn()
     {
         GlobalVars.serverip = serverIp.text.Length == 0 ? "127.0.0.1" : serverIp.text;
